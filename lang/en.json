@@ -1,0 +1,7 @@
+{
+  "settings.debug.title": "Debug (Client Setting)",
+  "settings.debug.hint": "Console debugging information.",
+
+  "settings.icon.title" : "Display Icon Only",
+  "settings.icon.hint" : "Enabling this will trim the item sheet button to only an Icon."
+}
