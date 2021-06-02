@@ -1,4 +1,4 @@
-# Item Macro
+# Note Macro
 
 This is a FoundryVTT module that allows macros to be saved inside of a note. The note can then be executed by hovering over the note and [Shift, Alt, Ctrl] Clicking the note.
 You can execute the macro from the "noteDocument" class using the executeMacro(...args) function, from the note-macros macro window, or by [Shift, Alt, Ctrl] clicking the note.
