@@ -1,5 +1,3 @@
-# Map-Macro
-
 # Item Macro
 
 This is a FoundryVTT module that allows macros to be saved inside of a note. The note can then be executed by hovering over the note and [Shift, Alt, Ctrl] Clicking the note.
