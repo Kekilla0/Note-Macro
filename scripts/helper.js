@@ -48,8 +48,6 @@ export class helper{
     }
 
     NoteDocument.prototype._executeScript = function(...args){
-      logger.debug("_executeScript | args | ", args[0].data.originalEvent.constructor.metadata);
-
       //add variable to the evaluation of the script
       const note = this;
       const macro = note.getMacro();
@@ -57,7 +55,7 @@ export class helper{
       const actor = game.actors.get(speaker.actor);
       const token = canvas.tokens.get(speaker.token);
       const character = game.user.character;
-      const event = args[0]?.data?.originalEvent ? (args.shift()).data.originalEvent : undefined;
+      const event = getEvent();
 
       //build script execution
       const body = `(async () => {
@@ -71,6 +69,13 @@ export class helper{
       }catch (err) {
         ui.notifications.error(`There was an error in your macro syntax. See the console (F12) for details`);
         logger.error(err);
+      }
+
+      function getEvent(){
+        let a = args[0];
+        if(a instanceof Event) return args.shift();
+        if(a?.originalEvent instanceof Event) return args.shift().originalEvent;
+        return undefined;
       }
     }
   
