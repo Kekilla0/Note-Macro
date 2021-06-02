@@ -28,10 +28,11 @@ With a simple [Shift, Alt, Ctrl] click, execute the macro directly from the canv
 ![In Action](https://i.gyazo.com/46414ca582561ac56113d78007e36645.gif)
 
 Added Item Functionality
-TileDocument.hasMacro() => returns boolean on if the note has a macro command
-TileDocument.getMacro() => returns Macro instance, if the note has a macro command
-TileDocument.setMacro(Macro) => overwrites and saves given Macro to the note
-TileDocument.executeMacro(...args) => executes Macro command, giving note, macro, speaker, actor, token, character, and event constants. Pass an event as the first argument.
+
+1. TileDocument.hasMacro() => returns boolean on if the note has a macro command
+2. TileDocument.getMacro() => returns Macro instance, if the note has a macro command
+3. TileDocument.setMacro(Macro) => overwrites and saves given Macro to the note
+4. TileDocument.executeMacro(...args) => executes Macro command, giving note, macro, speaker, actor, token, character, and event constants. Pass an event as the first argument.
 
 # Support
 
