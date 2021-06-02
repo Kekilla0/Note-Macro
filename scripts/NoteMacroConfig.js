@@ -1,11 +1,13 @@
-import { i18n } from "./helper.js";
 import { logger } from "./logger.js";
 import { settings } from "./settings.js";
 
 export class NoteMacroConfig extends MacroConfig{
-  name = "Note Macro";
-  key = "note-macro";
-  scope = "macro";
+  /*
+    Override
+  */
+  constructor(object, options){
+    super(object,options);
+  }
 
   /*
     Override
@@ -13,7 +15,7 @@ export class NoteMacroConfig extends MacroConfig{
   static get defaultOptions(){
     return mergeObject(super.defaultOptions, {
       template : "modules/note-macro/templates/macro-config.html",
-      classes : ["macro-sheet", "sheet"]
+      sheets : ["sheet","macro-sheet"],
     });
   }
 
@@ -23,21 +25,20 @@ export class NoteMacroConfig extends MacroConfig{
   async getData(){
     const data = super.getData();
     data.command = this.object.getMacro()?.data?.command || "";
+    data.name = game.journal.get(this.object.data.entryId).name || "Invalid Journal Name";
     return data;
   }
 
   /*
     Override
   */
-  _onEditImage(event){
-    return ui.notifications.error(i18n("error.editImage"));
-  }
+  _onEditImage(event){  }
 
   /*
     Override
   */
   async _updateObject(event,formData){
-    await this.updateMacro(formData.command);
+    await this.updateMacro(formData);
   }
 
   /*
@@ -45,37 +46,41 @@ export class NoteMacroConfig extends MacroConfig{
   */
   async _onExecute(event){
     event.preventDefault();
-    await this.updateMacro(this._element[0].querySelectorAll('textarea')[0].value);
+    await this.updateMacro({ 
+      command : this._element[0].querySelectorAll('textarea')[0].value, 
+      type : this._element[0].querySelectorAll('select')[1].value,
+    });
     this.object.executeMacro(event);
   }
 
-  async updateMacro(command){
-    logger.debug("Updating Macro | ", this.object, command);
-    await this.object.unsetFlag(this.key, this.scope);
-    await this.object.setFlag(this.key, this.scope, new Macro({
-      name : this.object.data.name, type : "script", scope : "global", command, author : game.user.id,
+  async updateMacro({ command, type }){
+    await this.object.setMacro(new Macro({
+      name : game.journal.get(this.object.data.entryId).name || "Invalid Journal Name", type, scope : "global", command, author : game.user.id,
     }));
   }
 
   static _init(app, html, data){
-    if((settings.value("visibilty") && app.object.owner) || game.user.isGM){
-      let openButton = $(`<a class="open-${this.key}" title="itemacro"><i class="fas fa-sd-card"></i>${settings.value("icon") ? "" : "Note Macro"}</a>`);
+    logger.debug("App  | ", app);
+    logger.debug("HTML | ", html);
+    logger.debug("Data | ", data);
+
+    if(game.user.isGM){
+      let openButton = $(`<a class="open-note-macro" title="note-macro"><i class="fas fa-sd-card"></i>${settings.value("icon") ? "" : "Note Macro"}</a>`);
       openButton.click( event => {
           let Macro = null;
-          for (let key in app.entity.apps) {
-              let obj = app.entity.apps[key];
-              if (obj instanceof NoteMacroConfig) {
-                  Macro = obj;
-                  break;
-              }
+          for(let key in app.document.apps){
+            let obj = app.document.apps[key];
+            if(obj instanceof NoteMacroConfig){
+              Macro = obj;
+              break;
+            }
           }
-          if(!Macro) Macro = new NoteMacroConfig(app.entity,{});
+          if(!Macro) Macro = new NoteMacroConfig(app.object);
           Macro.render(true);
       });
-      html.closest('.app').find(`.open-${this.key}`).remove();
+      html.closest('.app').find(`.open-note-macro`).remove();
       let titleElement = html.closest('.app').find('.window-title');
       openButton.insertAfter(titleElement);
     }
   }
-
 }

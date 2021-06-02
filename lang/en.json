@@ -3,5 +3,16 @@
   "settings.debug.hint": "Console debugging information.",
 
   "settings.icon.title" : "Display Icon Only",
-  "settings.icon.hint" : "Enabling this will trim the item sheet button to only an Icon."
+  "settings.icon.hint" : "Enabling this will trim the item sheet button to only an Icon.",
+
+  "settings.eventKey.title" : "Choose Key",
+  "settings.eventKey.hint" : "When clicking on a exposed note with this key depressed will execute the stored macro in the Note.",
+
+  "error.editImage":"You cannot edit the icon for this macro.",
+
+  "buttons.saveMacro":"Save Macro",
+  "buttons.executeMacro":"Execute Macro",
+
+  "buttons.roll":"Execute Item Macro",
+  "buttons.default":"Default Sheet Roll"
 }

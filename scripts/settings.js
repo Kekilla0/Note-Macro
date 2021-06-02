@@ -1,27 +1,40 @@
 import { logger } from './logger.js';
 
-export class settings{
-  static name = "Note Macro";
-  static key = "note-macro";
+export class settings {
+  static value(key){
+    return game.settings.get(this.data.name, key);
+  }
 
-  static value(str){
-    return game.settings.get(this.key, str);
+  static registerModule(key){
+    settings.data = game.modules.get(key)?.data;
+    if(!settings.data) return logger.error("Module Registration Error | Data Error");
+
+    settings.eventKeys = {
+      "shiftKey" : "Shift Key",
+      "altKey" : "Alt Key",
+      "ctrlKey" : "Ctrl Key"
+    };
   }
   
+  static i18n(key){
+    return game.i18n.localize(key);
+  }
 
   static register(){
-    logger.info(`Registering All Settings.`);
+    settings.registerModule("note-macro");
+    logger.info(`Registering All Settings.`);    
     settings.logger();
     settings.icon();
+    settings.eventKey();
   }
 
   static logger(){
     game.settings.register(
-      this.key,
+      settings.data.name,
       'debug',
       {
-        name : i18n("settings.debug.title"),
-        hint : i18n("settings.debug.hint"),
+        name : settings.i18n("settings.debug.title"),
+        hint : settings.i18n("settings.debug.hint"),
         scope : "client",
         config : true,
         default : false,
@@ -31,16 +44,32 @@ export class settings{
   }
   static icon(){
     game.settings.register(
-      this.key,
+      settings.data.name,
       'icon',
       {
-        name : i18n("settings.icon.title"),
-        hint : i18n("settings.icon.hint"),
+        name : settings.i18n("settings.icon.title"),
+        hint : settings.i18n("settings.icon.hint"),
         scope : "world",
         config : true,
         default : false,
         type : Boolean
       } 
     );
+  }
+  static eventKey(){
+    game.settings.register(
+      settings.data.name,
+      'eventKey',
+      {
+        name : settings.i18n("settings.eventKey.title"),
+        hint : settings.i18n("setting.eventKey.hint"),
+        scope : "client",
+        config : true,
+        default : "shiftKey",
+        type : String,
+        choices : settings.eventKeys,
+        onChange : window.location.reload,
+      }
+    )
   }
 }
