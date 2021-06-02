@@ -62,7 +62,7 @@ export class settings {
       'eventKey',
       {
         name : settings.i18n("settings.eventKey.title"),
-        hint : settings.i18n("setting.eventKey.hint"),
+        hint : settings.i18n("settings.eventKey.hint"),
         scope : "client",
         config : true,
         default : "shiftKey",

@@ -8,6 +8,5 @@ Hooks.on('renderNoteConfig', NoteMacroConfig._init);
 
 
 /*
-  Minor Fixes
-    immitate foundry code execution?
+  Minor Fixes : None
 */
