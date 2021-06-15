@@ -9,6 +9,9 @@
   "settings.eventKey.hint" : "When clicking on a exposed note with this key depressed will execute the stored macro in the Note.",
 
   "error.editImage":"You cannot edit the icon for this macro.",
+  "error.setMacro":"Incorrect Macro type",
+  "error.chatMacro":"There was an error in your chat message syntax.",
+  "error.scriptMacro":"There was an error in your macro syntax. See the console (F12) for details",
 
   "buttons.saveMacro":"Save Macro",
   "buttons.executeMacro":"Execute Macro",

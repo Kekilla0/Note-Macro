@@ -23,53 +23,24 @@ export class settings {
   static register(){
     settings.registerModule("note-macro");
     logger.info(`Registering All Settings.`);    
-    settings.logger();
-    settings.icon();
-    settings.eventKey();
+    settings.register_settings();
   }
 
-  static logger(){
-    game.settings.register(
-      settings.data.name,
-      'debug',
-      {
-        name : settings.i18n("settings.debug.title"),
-        hint : settings.i18n("settings.debug.hint"),
-        scope : "client",
-        config : true,
-        default : false,
-        type : Boolean
-      } 
-    );
-  }
-  static icon(){
-    game.settings.register(
-      settings.data.name,
-      'icon',
-      {
-        name : settings.i18n("settings.icon.title"),
-        hint : settings.i18n("settings.icon.hint"),
-        scope : "world",
-        config : true,
-        default : false,
-        type : Boolean
-      } 
-    );
-  }
-  static eventKey(){
-    game.settings.register(
-      settings.data.name,
-      'eventKey',
-      {
-        name : settings.i18n("settings.eventKey.title"),
-        hint : settings.i18n("settings.eventKey.hint"),
-        scope : "client",
-        config : true,
-        default : "shiftKey",
-        type : String,
-        choices : settings.eventKeys,
-        onChange : window.location.reload,
-      }
-    )
-  }
+  static register_settings(){
+    const settingData = {
+      debug : { scope : "client", config : true, default : false, type : Boolean },
+      icon : { scope : "world", config : true, default : false, type : Boolean },
+      eventKey : { scope : "client", config : true, default : "shiftKey", type : String, choices : settings.eventKeys, onChange : ()=> window.location.reload() },
+    };
+
+    Object.entries(settingData).forEach(([key, data])=> {
+      game.settings.register(
+        settings.data.name, key, {
+          name : settings.i18n(`settings.${key}.title`),
+          hint : settings.i18n(`settings.${key}.hint`),
+          ...data
+        }
+      );
+    });
+  } 
 }

@@ -5,7 +5,12 @@ export class helper{
 
   static register(){
     logger.info(`Registering Helper Functions.`);
+    helper.registerNote();
+    helper.registerJournal();
+  }
 
+  static registerNote(){
+    logger.info(`Registering Note Helper Functions.`);
     //add Note helper functions
     NoteDocument.prototype.hasMacro = function (){
       return !!this.getFlag(settings.data.name,"macro")?.data?.command;
@@ -18,7 +23,7 @@ export class helper{
 
     NoteDocument.prototype.setMacro = async function(macro){
       logger.debug("SetMacro | ", macro);
-      if(!macro instanceof Macro) return logger.error("Incorrect Macro type");
+      if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
       await this.unsetFlag(settings.data.name, "macro");
       return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
     }
@@ -42,7 +47,7 @@ export class helper{
       try {
         ui.chat.processMessage(macro.data.command);
       }catch(err){
-        ui.notifications.error("There was an error in your chat message syntax.");
+        ui.notifications.error(settings.i18n("error.chatMacro"));
         logger.error(err);
       } 
     }
@@ -67,7 +72,7 @@ export class helper{
       try {
         fn.call(macro, note, speaker, actor, token, character, event, args);
       }catch (err) {
-        ui.notifications.error(`There was an error in your macro syntax. See the console (F12) for details`);
+        ui.notifications.error(settings.i18n("error.scriptMacro"));
         logger.error(err);
       }
 
@@ -75,6 +80,7 @@ export class helper{
         let a = args[0];
         if(a instanceof Event) return args.shift();
         if(a?.originalEvent instanceof Event) return args.shift().originalEvent;
+        if(a?.data?.originalEvent instanceof Event) return args.shift().data.originalEvent;
         return undefined;
       }
     }
@@ -95,5 +101,52 @@ export class helper{
     Note.prototype._onClickLeft = function(event) {
       Canvas.prototype._onClickLeft.call(canvas, event);
     }
+  }
+
+  static registerJournal(){
+    logger.info(`Registering Journal Helper Functions.`);
+
+    JournalEntry.prototype.setMacro = async function(macro){
+      logger.debug("SetMacro | ", macro);
+      if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
+      await this.unsetFlag(settings.data.name, "macro");
+      return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
+    }
+
+    JournalEntry.prototype.hasMacro = function(){
+      return !!this.getFlag(settings.data.name, `macro`)?.data?.command;
+    }
+
+    JournalEntry.prototype.getMacro = function(){
+      if(this.hasMacro())
+        return new Macro(this.getFlag(settings.data.name, `macro`).data);
+    }
+
+    JournalEntry.prototype.executeMacro = function(...args){
+      if(!this.hasMacro()) return;
+
+      switch(this.getMacro().data.type){
+        case "chat" :
+          //return this._executeChat(...args);
+          break;
+        case "script" :
+          //return this._executeScript(...args);
+      }
+    }
+  }
+
+  static async addNoteMacro(document, options, id){
+    const wait = async (ms) => new Promise((resolve)=> setTimeout(resolve, ms));
+    let journal = game.journal.get(document.data.entryId);
+    let macro = journal.getMacro();
+
+    logger.debug(document);
+
+    await wait(1000);
+
+    if(!macro)
+      await document.setMacro(macro);
+
+    logger.debug("Attempted Macro Transfer", document, macro);
   }
 }
