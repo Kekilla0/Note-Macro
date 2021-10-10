@@ -8,7 +8,7 @@ export class logger {
 
   static debug(...args) {
     if (settings.value('debug'))
-      this.info("DEBUG | ", ...args);
+      logger.info("DEBUG | ", ...args);
   }
 
   static error(...args) {

@@ -65,7 +65,7 @@ export class JournalMacroConfig extends MacroConfig{
     logger.debug("HTML | ", html);
     logger.debug("Data | ", data);
 
-    if(game.user.isGM){
+    if(game.user.isGM && settings.value("journal")){
       let openButton = $(`<a class="open-note-macro" title="note-macro"><i class="fas fa-sd-card"></i>${settings.value("icon") ? "" : "Note Macro"}</a>`);
       openButton.click( event => {
           let Macro = null;

@@ -24,8 +24,9 @@ export class NoteMacroConfig extends MacroConfig{
   */
   async getData(){
     const data = super.getData();
-    data.command = this.object.getMacro()?.data?.command || "";
-    data.name = game.journal.get(this.object.data.entryId).name || "Invalid Journal Name";
+    logger.debug(this);
+    data.command = this.document.object.getMacro()?.data?.command || "";
+    data.name = this.document.object.getJournal()?.name || "Invalid Journal Name";
     return data;
   }
 
@@ -50,12 +51,12 @@ export class NoteMacroConfig extends MacroConfig{
       command : this._element[0].querySelectorAll('textarea')[0].value, 
       type : this._element[0].querySelectorAll('select')[1].value,
     });
-    this.object.executeMacro(event);
+    this.document.object.executeMacro(event);
   }
 
   async updateMacro({ command, type }){
-    await this.object.setMacro(new Macro({
-      name : game.journal.get(this.object.data.entryId).name || "Invalid Journal Name", type, scope : "global", command, author : game.user.id,
+    await this.document.object.setMacro(new Macro({
+      name : this.document.object.getJournal().name || "Invalid Journal Name", type, scope : "global", command, author : game.user.id,
     }));
   }
 

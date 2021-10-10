@@ -31,6 +31,7 @@ export class settings {
       debug : { scope : "client", config : true, default : false, type : Boolean },
       icon : { scope : "world", config : true, default : false, type : Boolean },
       eventKey : { scope : "client", config : true, default : "shiftKey", type : String, choices : settings.eventKeys, onChange : ()=> window.location.reload() },
+      journal : { scope : "world", config : true, default : false, type : Boolean },
     };
 
     Object.entries(settingData).forEach(([key, data])=> {

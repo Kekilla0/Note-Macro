@@ -12,23 +12,28 @@ export class helper{
   static registerNote(){
     logger.info(`Registering Note Helper Functions.`);
     //add Note helper functions
-    NoteDocument.prototype.hasMacro = function (){
-      return !!this.getFlag(settings.data.name,"macro")?.data?.command;
+    Note.prototype.hasMacro = function (){
+      return !!this.document.getFlag(settings.data.name,"macro")?.data?.command;
     }
 
-    NoteDocument.prototype.getMacro = function (){
+    Note.prototype.getMacro = function (){
       if(this.hasMacro())
-        return new Macro(this.getFlag(settings.data.name, "macro").data);
+        return new Macro(this.document.getFlag(settings.data.name, "macro").data);
     }
 
-    NoteDocument.prototype.setMacro = async function(macro){
+    Note.prototype.getJournal = function(){
+      if(this.data.entryId)
+        return game.journal.get(this.data.entryId);
+    }
+
+    Note.prototype.setMacro = async function(macro){
       logger.debug("SetMacro | ", macro);
       if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
-      await this.unsetFlag(settings.data.name, "macro");
+      await this.document.unsetFlag(settings.data.name, "macro");
       return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
     }
 
-    NoteDocument.prototype.executeMacro = function(...args){
+    Note.prototype.executeMacro = function(...args){
       logger.debug("executeMacro | args | ", args);
       if(this.hasMacro()){
         switch(this.getMacro().data.type){
@@ -38,9 +43,17 @@ export class helper{
             return this._executeScript(...args);
         }
       }
+
+      function executeChat(...args){
+
+      }
+
+      function executeScript(...args){
+
+      }
     }
 
-    NoteDocument.prototype._executeChat = function(...args){  
+    Note.prototype._executeChat = function(...args){  
       const macro = this.getMacro();
 
       if(!macro) return;
@@ -52,9 +65,10 @@ export class helper{
       } 
     }
 
-    NoteDocument.prototype._executeScript = function(...args){
+    Note.prototype._executeScript = function(...args){
       //add variable to the evaluation of the script
       const note = this;
+      const journal = note.getJournal();
       const macro = note.getMacro();
       const speaker = ChatMessage.getSpeaker();
       const actor = game.actors.get(speaker.actor);
@@ -66,11 +80,11 @@ export class helper{
       const body = `(async () => {
         ${macro.data.command}
       })();`;
-      const fn = Function("note", "speaker", "actor", "token", "character", "event", "args", body);
+      const fn = Function("note", "journal", "speaker", "actor", "token", "character", "event", "args", body);
 
       //attempt script execution
       try {
-        fn.call(macro, note, speaker, actor, token, character, event, args);
+        fn.call(macro, note, journal, speaker, actor, token, character, event, args);
       }catch (err) {
         ui.notifications.error(settings.i18n("error.scriptMacro"));
         logger.error(err);
@@ -90,9 +104,9 @@ export class helper{
     Canvas.prototype._onClickLeft = function(event){
       logger.debug("Click Detected | Accepted : ", event.data.originalEvent[settings.value("eventKey")]);
       if(event.data.originalEvent[settings.value("eventKey")] && game.user.isGM){
-        const document = this.notes?._hover?.document;
+        const note = this.notes?._hover;
 
-        if(document) document.executeMacro(event);
+        if(note) note.executeMacro(event);
       }else{
         orig.call(this, event);
       }
@@ -107,7 +121,6 @@ export class helper{
     logger.info(`Registering Journal Helper Functions.`);
 
     JournalEntry.prototype.setMacro = async function(macro){
-      logger.debug("SetMacro | ", macro);
       if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
       await this.unsetFlag(settings.data.name, "macro");
       return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
@@ -127,26 +140,67 @@ export class helper{
 
       switch(this.getMacro().data.type){
         case "chat" :
-          //return this._executeChat(...args);
-          break;
+          return this._executeChat(...args);
         case "script" :
-          //return this._executeScript(...args);
+          return this._executeScript(...args);
+      }
+    }
+
+    JournalEntry.prototype._executeChat = function(){
+      const macro = this.getMacro();
+
+      if(!macro) return;
+      try {
+        ui.chat.processMessage(macro.data.command);
+      }catch(err){
+        ui.notifications.error(settings.i18n("error.chatMacro"));
+        logger.error(err);
+      }
+    }
+
+    JournalEntry.prototype._executeScript = function(){
+      //add variable to the evaluation of the script
+      const journal = this;
+      const macro = journal.getMacro();
+      const speaker = ChatMessage.getSpeaker();
+      const actor = game.actors.get(speaker.actor);
+      const token = canvas.tokens.get(speaker.token);
+      const character = game.user.character;
+      const event = getEvent();
+
+      //build script execution
+      const body = `(async () => {
+        ${macro.data.command}
+      })();`;
+      const fn = Function("journal", "speaker", "actor", "token", "character", "event", "args", body);
+
+      //attempt script execution
+      try {
+        fn.call(macro, journal, speaker, actor, token, character, event, args);
+      }catch (err) {
+        ui.notifications.error(settings.i18n("error.scriptMacro"));
+        logger.error(err);
+      }
+
+      function getEvent(){
+        let a = args[0];
+        if(a instanceof Event) return args.shift();
+        if(a?.originalEvent instanceof Event) return args.shift().originalEvent;
+        if(a?.data?.originalEvent instanceof Event) return args.shift().data.originalEvent;
+        return undefined;
       }
     }
   }
 
   static async addNoteMacro(document, options, id){
-    const wait = async (ms) => new Promise((resolve)=> setTimeout(resolve, ms));
-    let journal = game.journal.get(document.data.entryId);
-    let macro = journal.getMacro();
+    if(!settings.value("journal")) return;
+    let journal = document.object.getJournal();
 
-    logger.debug(document);
+    logger.debug(document, journal);
 
-    await wait(1000);
+    if(journal.hasMacro())
+      await document.object.setMacro(journal.getMacro());
 
-    if(!macro)
-      await document.setMacro(macro);
-
-    logger.debug("Attempted Macro Transfer", document, macro);
+    logger.debug("Attempted Macro Transfer", document, journal);
   }
 }
