@@ -30,7 +30,7 @@ export class helper{
       logger.debug("SetMacro | ", macro);
       if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
       await this.document.unsetFlag(settings.data.name, "macro");
-      return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
+      return await this.document.setFlag(settings.data.name, "macro", { data :  macro.data });
     }
 
     Note.prototype.executeMacro = function(...args){
@@ -205,7 +205,7 @@ export class helper{
     });
   }
 
-  static updateNotes(_id){
+  static async updateNotes(_id){
     logger.debug("Update Notes Called | ", _id);
     
     const journal = game.journal.get(_id);
@@ -219,7 +219,12 @@ export class helper{
 
     logger.debug({journal, notes});
 
+    const macro = journal.getMacro();
 
+    if(!macro) return; 
+
+    for(const note of notes)
+      await note.object.setMacro(macro);
   }
 
   static async addNoteMacro(document, options, id){
