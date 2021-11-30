@@ -18,9 +18,5 @@ Hooks.on('getJournalDirectoryEntryContext', (html, options) => helper.addContext
   Minor Fixes : 
 
   Ideas :
-    1: Journal Macro propagation to all notes linked to that specific journal.
-      * getJournalDirectoryEntryContext
-        ** addContext [done]
-        ** updateMacros
-          *** Note.data.entryId
+    * Update for v9 compatibility
 */
