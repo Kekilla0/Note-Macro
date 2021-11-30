@@ -30,7 +30,7 @@ export class helper{
       logger.debug("SetMacro | ", macro);
       if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
       await this.document.unsetFlag(settings.data.name, "macro");
-      return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
+      return await this.document.setFlag(settings.data.name, "macro", { data :  macro.data });
     }
 
     Note.prototype.executeMacro = function(...args){
@@ -192,6 +192,41 @@ export class helper{
     }
   }
 
+  static addContext(options){
+    if(!game.user.isGM) return;
+
+    logger.info("Adding Context Menu Items");
+
+    options.push({
+      name : "Update All Note Macros",
+      icon : '<i class="fas fa-redo"></i>',
+      condition : () => game.user.isGM,
+      callback : (li) => helper.updateNotes(li?.data("entityId"))
+    });
+  }
+
+  static async updateNotes(_id){
+    logger.debug("Update Notes Called | ", _id);
+    
+    const journal = game.journal.get(_id);
+    const notes = game.scenes.reduce((a,s) => {
+      const n = s.data.notes.filter(note => note.data.entryId === _id);
+
+      if(!n)
+        return a;
+      return [...n, ...a];
+    }, []);
+
+    logger.debug({journal, notes});
+
+    const macro = journal.getMacro();
+
+    if(!macro) return; 
+
+    for(const note of notes)
+      await note.object.setMacro(macro);
+  }
+
   static async addNoteMacro(document, options, id){
     if(!settings.value("journal")) return;
     let journal = document.object.getJournal();
@@ -203,4 +238,6 @@ export class helper{
 
     logger.debug("Attempted Macro Transfer", document, journal);
   }
+
+
 }
