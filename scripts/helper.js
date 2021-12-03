@@ -201,11 +201,11 @@ export class helper{
       name : "Update All Note Macros",
       icon : '<i class="fas fa-redo"></i>',
       condition : () => game.user.isGM,
-      callback : (li) => helper.updateNotes(li?.data("entityId"))
+      callback : (li) => helper.updateNotes(li?.data("documentId")),
     });
   }
 
-  static async updateNotes(_id){
+  static async updateNotes(_id)){
     logger.debug("Update Notes Called | ", _id);
     
     const journal = game.journal.get(_id);
