@@ -205,7 +205,7 @@ export class helper{
     });
   }
 
-  static async updateNotes(_id)){
+  static async updateNotes(_id){
     logger.debug("Update Notes Called | ", _id);
     
     const journal = game.journal.get(_id);
