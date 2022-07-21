@@ -25,7 +25,16 @@ Various different settings will change the way Tile Macro interacts with the gam
 With a simple [Shift, Alt, Ctrl] click, execute the macro directly from the canvas!
 ![In Action](https://i.gyazo.com/46414ca582561ac56113d78007e36645.gif)
 
-Added Item Functionality
+## Available Helpers
+The following variables are available
+`note` - The note placeable the macro is bound to
+`journal` - The respective journal of the note
+`speaker` - Return of ChatMessage.getSpeaker()
+`actor` - The actor associated with the speaker
+`token` - The token associated with the speaker
+`character` - The executing user's character
+
+## Added Item Functionality
 
 1. TileDocument.hasMacro() => returns boolean on if the note has a macro command
 2. TileDocument.getMacro() => returns Macro instance, if the note has a macro command
