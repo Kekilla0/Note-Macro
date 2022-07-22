@@ -2,11 +2,11 @@ import { logger } from './logger.js';
 
 export class settings {
   static value(key){
-    return game.settings.get(this.data.name, key);
+    return game.settings.get(this.name, key);
   }
 
   static registerModule(key){
-    settings.data = game.modules.get(key)?.data;
+    settings.data = game.modules.get(key);
     if(!settings.data) return logger.error("Module Registration Error | Data Error");
 
     settings.eventKeys = {
@@ -37,7 +37,7 @@ export class settings {
 
     Object.entries(settingData).forEach(([key, data])=> {
       game.settings.register(
-        settings.data.name, key, {
+        settings.name, key, {
           name : settings.i18n(`settings.${key}.title`),
           hint : settings.i18n(`settings.${key}.hint`),
           ...data

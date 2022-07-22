@@ -17,8 +17,8 @@ export class JournalMacroConfig extends MacroConfig{
   */
   async getData(){
     const data = super.getData();
-    data.command = this.object.getMacro()?.data?.command;
-    data.name = this?.object?.data?.name || "Invalid Journal Name";
+    data.command = this.object.getMacro()?.command;
+    data.name = this?.object?.name || "Invalid Journal Name";
     return data;
   }
 
@@ -52,7 +52,7 @@ export class JournalMacroConfig extends MacroConfig{
 
   async updateMacro({ command, type }){
     await this.object.setMacro(new Macro({
-      name : this?.object?.data?.name || "Invalid Journal Name", 
+      name : this?.object?.name || "Invalid Journal Name", 
       type, command, 
       scope : "global",
       author : game.user.id,

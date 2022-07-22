@@ -13,30 +13,30 @@ export class helper{
     logger.info(`Registering Note Helper Functions.`);
     //add Note helper functions
     Note.prototype.hasMacro = function (){
-      return !!this.document.getFlag(settings.data.name,"macro")?.data?.command;
+      return !!this.document.getFlag(settings.data.id, "macro.command");
     }
 
     Note.prototype.getMacro = function (){
       if(this.hasMacro())
-        return new Macro(this.document.getFlag(settings.data.name, "macro").data);
+        return new Macro(this.document.getFlag(settings.data.id, "macro"));
     }
 
     Note.prototype.getJournal = function(){
-      if(this.data.entryId)
-        return game.journal.get(this.data.entryId);
+      if(this.entry.id)
+        return game.journal.get(this.entry.id);
     }
 
     Note.prototype.setMacro = async function(macro){
       logger.debug("SetMacro | ", macro);
       if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
-      await this.document.unsetFlag(settings.data.name, "macro");
-      return await this.document.setFlag(settings.data.name, "macro", { data :  macro.data });
+      await this.document.unsetFlag(settings.data.id, "macro");
+      return await this.document.setFlag(settings.data.id, "macro", macro.toObject());
     }
 
     Note.prototype.executeMacro = function(...args){
       logger.debug("executeMacro | args | ", args);
       if(this.hasMacro()){
-        switch(this.getMacro().data.type){
+        switch(this.getMacro().type){
           case "chat" :
             return this._executeChat(...args);
           case "script" :
@@ -58,7 +58,7 @@ export class helper{
 
       if(!macro) return;
       try {
-        ui.chat.processMessage(macro.data.command);
+        ui.chat.processMessage(macro.command);
       }catch(err){
         ui.notifications.error(settings.i18n("error.chatMacro"));
         logger.error(err);
@@ -78,7 +78,7 @@ export class helper{
 
       //build script execution
       const body = `(async () => {
-        ${macro.data.command}
+        ${macro.command}
       })();`;
       const fn = Function("note", "journal", "speaker", "actor", "token", "character", "event", "args", body);
 
@@ -105,7 +105,7 @@ export class helper{
       logger.debug("Click Detected | Accepted : ", event.data.originalEvent[settings.value("eventKey")]);
       //Execute if the key is held and gm or if player execution is enabled
       if(event.data.originalEvent[settings.value("eventKey")] && (game.user.isGM||settings.value("permission"))){ 
-        const note = this.notes?._hover;
+        const note = this.notes?.hover;
         logger.debug("Corresponding Note:",note)
         if(note) note.executeMacro(event);
       }else{
@@ -123,23 +123,23 @@ export class helper{
 
     JournalEntry.prototype.setMacro = async function(macro){
       if(!macro instanceof Macro) return logger.error(settings.i18n("error.setMacro"));
-      await this.unsetFlag(settings.data.name, "macro");
-      return await this.setFlag(settings.data.name, "macro", { data :  macro.data });
+      await this.unsetFlag(settings.data.id, "macro");
+      return await this.setFlag(settings.data.id, "macro", macro.toObject());
     }
 
     JournalEntry.prototype.hasMacro = function(){
-      return !!this.getFlag(settings.data.name, `macro`)?.data?.command;
+      return !!this.getFlag(settings.data.id, "macro.command");
     }
 
     JournalEntry.prototype.getMacro = function(){
       if(this.hasMacro())
-        return new Macro(this.getFlag(settings.data.name, `macro`).data);
+        return new Macro(this.getFlag(settings.data.id, "macro"));
     }
 
     JournalEntry.prototype.executeMacro = function(...args){
       if(!this.hasMacro()) return;
 
-      switch(this.getMacro().data.type){
+      switch(this.getMacro().type){
         case "chat" :
           return this._executeChat(...args);
         case "script" :
@@ -152,14 +152,14 @@ export class helper{
 
       if(!macro) return;
       try {
-        ui.chat.processMessage(macro.data.command);
+        ui.chat.processMessage(macro.command);
       }catch(err){
         ui.notifications.error(settings.i18n("error.chatMacro"));
         logger.error(err);
       }
     }
 
-    JournalEntry.prototype._executeScript = function(){
+    JournalEntry.prototype._executeScript = function(...args){
       //add variable to the evaluation of the script
       const journal = this;
       const macro = journal.getMacro();
@@ -171,7 +171,7 @@ export class helper{
 
       //build script execution
       const body = `(async () => {
-        ${macro.data.command}
+        ${macro.command}
       })();`;
       const fn = Function("journal", "speaker", "actor", "token", "character", "event", "args", body);
 
@@ -211,18 +211,15 @@ export class helper{
     
     const journal = game.journal.get(_id);
     const notes = game.scenes.reduce((a,s) => {
-      const n = s.data.notes.filter(note => note.data.entryId === _id);
-
-      if(!n)
-        return a;
-      return [...n, ...a];
+      const n = s.notes.filter(note => note.entry.id === _id);
+	  return a.concat(n);
     }, []);
 
     logger.debug({journal, notes});
 
     const macro = journal.getMacro();
 
-    if(!macro) return; 
+    if(!macro) return;
 
     for(const note of notes)
       await note.object.setMacro(macro);
