@@ -11,7 +11,7 @@
   "compatibleCoreVersion" : "10",
   "compatibility":{
     "minimum":10,
-    "verified":10
+    "verified":10.725
   },
   "esmodules" : ["scripts/hooks.js"],
   "languages" : [
