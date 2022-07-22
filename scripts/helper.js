@@ -103,9 +103,10 @@ export class helper{
     const orig = Canvas.prototype._onClickLeft;
     Canvas.prototype._onClickLeft = function(event){
       logger.debug("Click Detected | Accepted : ", event.data.originalEvent[settings.value("eventKey")]);
-      if(event.data.originalEvent[settings.value("eventKey")] && game.user.isGM){
+      //Execute if the key is held and gm or if player execution is enabled
+      if(event.data.originalEvent[settings.value("eventKey")] && (game.user.isGM||settings.value("permission"))){ 
         const note = this.notes?._hover;
-
+        logger.debug("Corresponding Note:",note)
         if(note) note.executeMacro(event);
       }else{
         orig.call(this, event);
