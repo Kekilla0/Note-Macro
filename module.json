@@ -1,11 +1,18 @@
 {
   "name" : "note-macro",
+  "id" : "note-macro",
   "title" : "Note Macro",
   "description" : "Allows for shift click note on canvas, execute macro.",
-  "author" : ["kekilla#7036"],
+  "authors" : [
+    {"name":"kekilla#7036"}
+  ],
   "version" : "",
-  "minimumCoreVersion" : "0.8.0",
-  "compatibleCoreVersion" : "9",
+  "minimumCoreVersion" : "10",
+  "compatibleCoreVersion" : "10",
+  "compatibility":{
+    "minimum":10,
+    "verified":10.725
+  },
   "esmodules" : ["scripts/hooks.js"],
   "languages" : [
     {

@@ -25,7 +25,7 @@ export class NoteMacroConfig extends MacroConfig{
   async getData(){
     const data = super.getData();
     logger.debug(this);
-    data.command = this.document.object.getMacro()?.data?.command || "";
+    data.command = this.document.object.getMacro()?.command || "";
     data.name = this.document.object.getJournal()?.name || "Invalid Journal Name";
     return data;
   }

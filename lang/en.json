@@ -10,7 +10,7 @@
 
   "settings.eventKey.title" : "Choose Key",
   "settings.eventKey.hint" : "When clicking on a exposed note with this key depressed will execute the stored macro in the Note.",
-
+  
   "settings.permission.title" : "Player Execution",
   "settings.permission.hint" : "Allow players to execute note macros",
 
